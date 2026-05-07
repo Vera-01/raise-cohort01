@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIse · Prompt Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #1A1A1A;
+    --green: #AAFF00;
+    --white: #FFFFFF;
+    --card: #2A2A2A;
+    --grey: #888888;
+    --dark-border: #3a3a3a;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  header {
+    padding: 2rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--dark-border);
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--white);
+  }
+
+  .logo span { color: var(--green); }
+
+  .tool-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--green);
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  main { padding: 2.5rem; max-width: 860px; }
+
+  .headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .headline span { color: var(--green); }
+
+  .sub {
+    font-size: 15px;
+    color: var(--grey);
+    margin-bottom: 2.5rem;
+    line-height: 1.5;
+  }
+
+  .rctc-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 2.5rem;
+  }
+
+  .rctc-pill {
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--dark-border);
+    background: var(--card);
+    transition: border-color 0.2s;
+  }
+
+  .rctc-pill.active { border-color: var(--green); }
+
+  .rctc-letter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .rctc-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 2rem; }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .field-group label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--grey);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .field-group label .letter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--green);
+    color: var(--black);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .field-group textarea {
+    background: var(--card);
+    border: 1px solid var(--dark-border);
+    border-radius: 6px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 12px 14px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  .field-group textarea::placeholder { color: #555; }
+
+  .field-group textarea:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 2px rgba(170,255,0,0.1);
+  }
+
+  .output-block {
+    background: var(--card);
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    min-height: 120px;
+    transition: border-color 0.3s;
+  }
+
+  .output-block.has-content { border-color: #444; }
+
+  .output-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 12px;
+  }
+
+  .output-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--white);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .output-empty {
+    font-size: 14px;
+    color: #555;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 11px 24px;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--black);
+    border-color: var(--green);
+  }
+
+  .btn-primary:hover { background: #99ee00; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border-color: var(--dark-border);
+  }
+
+  .btn-secondary:hover { border-color: var(--grey); background: #2a2a2a; }
+
+  .copy-confirm {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .copy-confirm.show { opacity: 1; }
+
+  .divider {
+    height: 1px;
+    background: var(--dark-border);
+    margin: 2.5rem 0;
+  }
+
+  .tips-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
+  .tip-card {
+    background: var(--card);
+    border: 1px solid var(--dark-border);
+    border-radius: 6px;
+    padding: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .tip-card:hover { border-color: var(--green); }
+
+  .tip-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  .tip-card-text { font-size: 13px; color: var(--grey); line-height: 1.4; }
+
+  @media (max-width: 600px) {
+    .rctc-row { grid-template-columns: repeat(2, 1fr); }
+    header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RA<span>I</span>se</div>
+  <div class="tool-tag">Prompt Builder · Week 01</div>
+</header>
+
+<main>
+  <h1 class="headline">Build your<br><span>first prompt.</span></h1>
+  <p class="sub">Fill in the four fields below. Get a prompt ready to paste into Claude.<br>The more specific you are, the better Claude performs.</p>
+
+  <div class="rctc-row">
+    <div class="rctc-pill" id="pill-r">
+      <div class="rctc-letter">R</div>
+      <div class="rctc-name">Role</div>
+    </div>
+    <div class="rctc-pill" id="pill-c1">
+      <div class="rctc-letter">C</div>
+      <div class="rctc-name">Context</div>
+    </div>
+    <div class="rctc-pill" id="pill-t">
+      <div class="rctc-letter">T</div>
+      <div class="rctc-name">Task</div>
+    </div>
+    <div class="rctc-pill" id="pill-c2">
+      <div class="rctc-letter">C</div>
+      <div class="rctc-name">Constraints</div>
+    </div>
+  </div>
+
+  <div class="fields">
+    <div class="field-group">
+      <label><span class="letter-badge">R</span> Your role — who are you at work?</label>
+      <textarea id="f-r" rows="2" placeholder="e.g. I am a marketing manager at a mid-size retail company. No technical background."></textarea>
+    </div>
+    <div class="field-group">
+      <label><span class="letter-badge">C</span> Context — what's the situation?</label>
+      <textarea id="f-c1" rows="2" placeholder="e.g. We are preparing for a Q3 board presentation about our digital transformation spend."></textarea>
+    </div>
+    <div class="field-group">
+      <label><span class="letter-badge">T</span> Task — what do you need from Claude?</label>
+      <textarea id="f-t" rows="2" placeholder="e.g. Draft 3 talking points that justify the spend using ROI language, not technical language."></textarea>
+    </div>
+    <div class="field-group">
+      <label><span class="letter-badge">C</span> Constraints — limits, tone, format?</label>
+      <textarea id="f-c2" rows="2" placeholder="e.g. Max 3 bullet points. No jargon. Assume the board has zero technical knowledge."></textarea>
+    </div>
+  </div>
+
+  <div class="output-block" id="output-block">
+    <div class="output-label">// Your prompt</div>
+    <div id="output-inner" class="output-empty">Fill in the fields above, then click Build Prompt.</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="buildPrompt()">Build Prompt</button>
+    <button class="btn btn-secondary" onclick="copyPrompt()">Copy</button>
+    <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+    <span class="copy-confirm" id="copy-msg">✓ Copied to clipboard</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="tips-title">Try an example</div>
+  <div class="tips-grid">
+    <div class="tip-card" onclick="loadExample('email')">
+      <div class="tip-card-label">Example 01</div>
+      <div class="tip-card-text">Write a follow-up email after a proposal</div>
+    </div>
+    <div class="tip-card" onclick="loadExample('meeting')">
+      <div class="tip-card-label">Example 02</div>
+      <div class="tip-card-text">Prepare for a difficult stakeholder meeting</div>
+    </div>
+    <div class="tip-card" onclick="loadExample('summary')">
+      <div class="tip-card-label">Example 03</div>
+      <div class="tip-card-text">Summarise a report for a busy executive</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const examples = {
+    email: {
+      r: 'I am a sales manager at a B2B software company.',
+      c1: 'A client went quiet after we sent our proposal 2 weeks ago. They seemed interested during the demo.',
+      t: 'Write a follow-up email that re-opens the conversation without sounding desperate.',
+      c2: 'Max 100 words. Warm but direct tone. No discounts or pressure.'
+    },
+    meeting: {
+      r: 'I am a senior HR manager at a financial services firm.',
+      c1: 'I have a meeting tomorrow with a director who has been resistant to our new performance review process.',
+      t: 'Help me prepare 3 key arguments for why this process benefits their team, not just HR.',
+      c2: 'Use business impact language. No HR jargon. Anticipate their objections.'
+    },
+    summary: {
+      r: 'I am a strategy analyst at a CPG company.',
+      c1: 'My CEO has 5 minutes before the meeting starts and has not read the 20-page market research report.',
+      t: 'Summarise the report into an executive briefing.',
+      c2: 'Max 5 bullet points. Focus on risks and decisions needed. No methodology, no data tables.'
+    }
+  };
+
+  let currentPrompt = '';
+
+  function loadExample(key) {
+    const ex = examples[key];
+    document.getElementById('f-r').value = ex.r;
+    document.getElementById('f-c1').value = ex.c1;
+    document.getElementById('f-t').value = ex.t;
+    document.getElementById('f-c2').value = ex.c2;
+    updatePills();
+  }
+
+  function updatePills() {
+    const map = { 'r': 'f-r', 'c1': 'f-c1', 't': 'f-t', 'c2': 'f-c2' };
+    Object.entries(map).forEach(([pill, field]) => {
+      const el = document.getElementById(`pill-${pill}`);
+      el.classList.toggle('active', document.getElementById(field).value.trim().length > 0);
+    });
+  }
+
+  ['f-r','f-c1','f-t','f-c2'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updatePills);
+  });
+
+  function buildPrompt() {
+    const r = document.getElementById('f-r').value.trim();
+    const c1 = document.getElementById('f-c1').value.trim();
+    const t = document.getElementById('f-t').value.trim();
+    const c2 = document.getElementById('f-c2').value.trim();
+
+    if (!r && !c1 && !t && !c2) return;
+
+    let parts = [];
+    if (r) parts.push(r);
+    if (c1) parts.push(c1);
+    if (t) parts.push(t);
+    if (c2) parts.push('Important constraints: ' + c2);
+
+    currentPrompt = parts.join('\n\n');
+
+    const inner = document.getElementById('output-inner');
+    inner.className = 'output-text';
+    inner.textContent = currentPrompt;
+    document.getElementById('output-block').classList.add('has-content');
+  }
+
+  function copyPrompt() {
+    if (!currentPrompt) { buildPrompt(); }
+    if (!currentPrompt) return;
+    navigator.clipboard.writeText(currentPrompt).then(() => {
+      const msg = document.getElementById('copy-msg');
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 2500);
+    });
+  }
+
+  function clearAll() {
+    ['f-r','f-c1','f-t','f-c2'].forEach(id => document.getElementById(id).value = '');
+    currentPrompt = '';
+    const inner = document.getElementById('output-inner');
+    inner.className = 'output-empty';
+    inner.textContent = 'Fill in the fields above, then click Build Prompt.';
+    document.getElementById('output-block').classList.remove('has-content');
+    updatePills();
+  }
+</script>
+</body>
+</html>
