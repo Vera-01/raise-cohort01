@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIse · Self-Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --black: #1A1A1A; --green: #AAFF00; --white: #FFFFFF; --card: #2A2A2A; --grey: #888888; --border: #333333; }
+  body { background: var(--black); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 2.5rem; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; color: var(--white); }
+  .logo .ai { color: var(--green); }
+  .tool-tag { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(170,255,0,0.3); padding: 3px 10px; border-radius: 2px; }
+
+  main { max-width: 680px; margin: 0 auto; padding: 3rem 2rem; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* INTRO */
+  .intro-tag { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1rem; }
+  .intro-headline { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(48px, 8vw, 72px); font-weight: 900; line-height: 0.92; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+  .intro-headline .green { color: var(--green); }
+  .intro-headline .dim { color: var(--grey); }
+  .intro-desc { font-size: 15px; color: var(--grey); line-height: 1.7; margin-bottom: 2rem; }
+  .intro-desc strong { color: var(--white); font-weight: 500; }
+  .intro-meta { display: flex; gap: 2.5rem; margin-bottom: 2.5rem; }
+  .meta-num { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; color: var(--green); line-height: 1; }
+  .meta-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 2.5rem; }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; }
+  .progress-pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--green); }
+  .progress-track { height: 3px; background: var(--border); border-radius: 2px; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+
+  /* QUESTION */
+  .q-step { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .q-category { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .q-text { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(24px, 4vw, 34px); font-weight: 700; line-height: 1.15; text-transform: uppercase; letter-spacing: 0.01em; color: var(--white); margin-bottom: 2rem; }
+
+  /* SCALE */
+  .scale-labels { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .scale-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; }
+  .scale-options { display: flex; gap: 8px; margin-bottom: 2rem; }
+  .scale-btn { flex: 1; aspect-ratio: 1; background: var(--card); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .scale-btn:hover { border-color: #555; background: #333; }
+  .scale-btn.selected { border-color: var(--green); background: rgba(170,255,0,0.08); }
+  .s-num { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; color: var(--grey); line-height: 1; }
+  .scale-btn.selected .s-num { color: var(--green); }
+  .s-desc { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; line-height: 1.3; display: none; padding: 0 4px; }
+  .scale-btn:hover .s-desc, .scale-btn.selected .s-desc { display: block; }
+
+  /* OPEN */
+  .open-q { margin-bottom: 2rem; }
+  .open-q textarea { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 6px; color: var(--white); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; padding: 12px 14px; resize: none; outline: none; transition: border-color 0.2s; }
+  .open-q textarea::placeholder { color: #444; }
+  .open-q textarea:focus { border-color: var(--green); }
+
+  /* NAV */
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+  .btn { padding: 11px 28px; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; border: 1px solid; transition: all 0.15s; }
+  .btn-primary { background: var(--green); color: var(--black); border-color: var(--green); }
+  .btn-primary:hover { background: #99ee00; }
+  .btn-primary:disabled { opacity: 0.3; cursor: default; background: var(--green); }
+  .btn-ghost { background: transparent; color: var(--grey); border-color: transparent; font-size: 13px; padding: 8px 0; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .btn-ghost:hover { color: var(--white); }
+
+  /* RESULTS */
+  .result-tag { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1rem; }
+  .result-headline { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(40px, 7vw, 60px); font-weight: 900; line-height: 0.95; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .result-headline .green { color: var(--green); }
+  .result-headline .dim { color: var(--grey); }
+  .result-desc { font-size: 15px; color: var(--grey); line-height: 1.6; margin-bottom: 2rem; }
+  .result-desc strong { color: var(--white); font-weight: 500; }
+
+  .overall-card { background: rgba(170,255,0,0.06); border: 1px solid rgba(170,255,0,0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+  .overall-score { font-family: 'Barlow Condensed', sans-serif; font-size: 72px; font-weight: 900; color: var(--green); line-height: 1; flex-shrink: 0; }
+  .overall-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .overall-message { font-size: 14px; color: var(--white); line-height: 1.6; }
+
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .result-card-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .result-card-score { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+  .score-track { height: 3px; background: var(--border); border-radius: 2px; }
+  .score-fill { height: 100%; border-radius: 2px; }
+
+  .save-note { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; font-size: 13px; color: var(--grey); line-height: 1.5; margin-bottom: 1.5rem; }
+  .save-note strong { color: var(--white); font-weight: 500; }
+
+  @media (max-width: 600px) {
+    .scale-options { gap: 5px; }
+    .result-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    main { padding: 2rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RA<span class="ai">I</span>se</div>
+  <div class="tool-tag">Self-Assessment · Baseline</div>
+</header>
+
+<main>
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-tag">// Before we begin</div>
+    <h1 class="intro-headline">
+      <span class="dim">Where are</span><br>
+      <span class="green">you now?</span>
+    </h1>
+    <p class="intro-desc">
+      Before Session 01, take 3 minutes to honestly assess where you stand with AI today.<br><br>
+      <strong>No right or wrong answers.</strong> This is your baseline — we'll come back to it at the end of Week 03 so you can see exactly how far you've come.
+    </p>
+    <div class="intro-meta">
+      <div>
+        <div class="meta-num">8</div>
+        <div class="meta-label">Questions</div>
+      </div>
+      <div>
+        <div class="meta-num">3</div>
+        <div class="meta-label">Minutes</div>
+      </div>
+      <div>
+        <div class="meta-num">0</div>
+        <div class="meta-label">Wrong answers</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startAssessment()">Start →</button>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="screen" id="screen-questions">
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <div class="progress-label" id="progress-label">Question 1 of 8</div>
+        <div class="progress-pct" id="progress-pct">0%</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+    <div id="q-container"></div>
+    <div class="nav-row">
+      <button class="btn-ghost" id="btn-back" onclick="prevQuestion()">← Back</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="screen-result">
+    <div class="result-tag">// Your baseline · Cohort 01</div>
+    <h2 class="result-headline">
+      <span class="dim">Honest</span><br>
+      <span class="green">start.</span>
+    </h2>
+    <p class="result-desc">This is where you are today. <strong>Screenshot this page.</strong> At the end of Week 03 you'll do this again — and see exactly what changed.</p>
+    <div class="overall-card" id="overall-card"></div>
+    <div class="result-grid" id="result-grid"></div>
+    <div class="save-note">📌 <strong>Save this.</strong> Screenshot your results or note down your scores. We'll revisit them after Session 03 to measure your progress.</div>
+    <button class="btn btn-primary" onclick="resetAssessment()">Retake →</button>
+  </div>
+
+</main>
+
+<script>
+const questions = [
+  { id: 'q1', category: 'Awareness', type: 'scale', text: 'How well do I understand what AI tools can actually do for my job?', low: 'No idea', high: 'Very clear', desc: ['No idea at all','Very vague','Some idea','Fairly clear','Crystal clear'] },
+  { id: 'q2', category: 'Current usage', type: 'scale', text: 'How often do I use AI tools in my day-to-day work right now?', low: 'Never', high: 'Every day', desc: ['Never','Once or twice ever','A few times a month','A few times a week','Every single day'] },
+  { id: 'q3', category: 'Confidence', type: 'scale', text: 'How confident am I that AI will produce something useful for my work?', low: 'Not at all', high: 'Very confident', desc: ['Not at all confident','Very low confidence','Somewhat unsure','Fairly confident','Very confident'] },
+  { id: 'q4', category: 'Prompting', type: 'scale', text: 'How well do I know how to write a prompt that gets a good result?', low: 'No idea', high: 'Know exactly', desc: ['No idea how','Very unsure','Some idea','Mostly know how','Know exactly'] },
+  { id: 'q5', category: 'Integration', type: 'scale', text: 'How well have I integrated AI into my actual work routine?', low: 'Not at all', high: 'Fully integrated', desc: ['Not at all','Barely started','Occasional use','Regular use','Fully integrated'] },
+  { id: 'q6', category: 'Keeping up', type: 'scale', text: 'How confident am I that I\'m keeping pace with how fast AI is changing?', low: 'Falling behind', high: 'Fully up to date', desc: ['Definitely behind','Probably behind','Unsure','Mostly keeping up','Fully up to date'] },
+  { id: 'q7', category: 'Open question', type: 'open', text: 'What is the one work task I most want AI to help me with after this programme?', placeholder: 'Be specific — the more concrete, the more we can address it directly in the sessions.' },
+  { id: 'q8', category: 'Open question', type: 'open', text: 'What is my biggest hesitation about using AI at work right now?', placeholder: 'No wrong answer. This helps us address your concerns directly during the programme.' }
+];
+
+const scaleCategories = [
+  { id: 'q1', label: 'Awareness' },
+  { id: 'q2', label: 'Current usage' },
+  { id: 'q3', label: 'Confidence' },
+  { id: 'q4', label: 'Prompting' },
+  { id: 'q5', label: 'Integration' },
+  { id: 'q6', label: 'Keeping up' }
+];
+
+const colors = ['#AAFF00','#99EE00','#77CC00','#AAFF00','#88DD00','#66BB00'];
+
+let current = 0;
+let answers = {};
+
+function startAssessment() {
+  showScreen('screen-questions');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+  const pct = Math.round((current / total) * 100);
+
+  document.getElementById('progress-label').textContent = `Question ${current + 1} of ${total}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('btn-back').style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  const container = document.getElementById('q-container');
+  container.innerHTML = `
+    <div class="q-step">Question ${current + 1} of ${total}</div>
+    <div class="q-category">// ${q.category}</div>
+    <div class="q-text">${q.text}</div>
+  `;
+
+  if (q.type === 'scale') {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<div class="scale-labels"><span class="scale-label">${q.low}</span><span class="scale-label">${q.high}</span></div>`;
+    const opts = document.createElement('div');
+    opts.className = 'scale-options';
+    [1,2,3,4,5].forEach((val, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'scale-btn' + (answers[q.id] === val ? ' selected' : '');
+      btn.innerHTML = `<span class="s-num">${val}</span><span class="s-desc">${q.desc[i]}</span>`;
+      btn.onclick = () => {
+        answers[q.id] = val;
+        opts.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        updateNextBtn();
+      };
+      opts.appendChild(btn);
+    });
+    wrap.appendChild(opts);
+    container.appendChild(wrap);
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'open-q';
+    const ta = document.createElement('textarea');
+    ta.rows = 5;
+    ta.placeholder = q.placeholder;
+    ta.value = answers[q.id] || '';
+    ta.oninput = () => { answers[q.id] = ta.value.trim(); updateNextBtn(); };
+    wrap.appendChild(ta);
+    container.appendChild(wrap);
+  }
+
+  updateNextBtn();
+}
+
+function updateNextBtn() {
+  const q = questions[current];
+  const has = q.type === 'scale' ? answers[q.id] !== undefined : (answers[q.id] && answers[q.id].length > 0);
+  const btn = document.getElementById('btn-next');
+  btn.disabled = !has;
+  btn.textContent = current === questions.length - 1 ? 'See my results →' : 'Next →';
+}
+
+function nextQuestion() {
+  if (current < questions.length - 1) { current++; renderQuestion(); }
+  else showResults();
+}
+
+function prevQuestion() {
+  if (current > 0) { current--; renderQuestion(); }
+}
+
+function showResults() {
+  showScreen('screen-result');
+
+  const total = scaleCategories.reduce((sum, c) => sum + (answers[c.id] || 0), 0);
+  const max = scaleCategories.length * 5;
+  const avg = Math.round((total / max) * 100);
+
+  let msg = '';
+  if (avg >= 80) msg = "You already have a solid foundation. RAIse will sharpen your skills and build the systems to stay ahead.";
+  else if (avg >= 50) msg = "You have some experience but gaps remain. That's exactly what RAIse is built for — closing those gaps in three weeks.";
+  else if (avg >= 25) msg = "You're at the beginning. That's the right place to start — everything from here is progress.";
+  else msg = "You're starting from scratch. That puts you in the best position to build the right habits from day one, the right way.";
+
+  document.getElementById('overall-card').innerHTML = `
+    <div class="overall-score">${avg}%</div>
+    <div>
+      <div class="overall-label">// Your AI confidence baseline</div>
+      <div class="overall-message">${msg}</div>
+    </div>
+  `;
+
+  const grid = document.getElementById('result-grid');
+  grid.innerHTML = '';
+  scaleCategories.forEach((cat, i) => {
+    const score = answers[cat.id] || 0;
+    const pct = (score / 5) * 100;
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <div class="result-card-label">${cat.label}</div>
+      <div class="result-card-score" style="color:${colors[i]}">${score}<span style="font-size:18px;color:var(--grey)">/5</span></div>
+      <div class="score-track"><div class="score-fill" style="width:${pct}%;background:${colors[i]};height:3px;border-radius:2px;"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function resetAssessment() {
+  current = 0;
+  answers = {};
+  showScreen('screen-intro');
+}
+</script>
+</body>
+</html>
