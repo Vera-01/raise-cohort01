@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIse · Cohort 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #1A1A1A;
+    --green: #AAFF00;
+    --white: #FFFFFF;
+    --card: #2A2A2A;
+    --grey: #888888;
+    --border: #333333;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    color: var(--white);
+  }
+  .logo .ai { color: var(--green); }
+
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--grey);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(170,255,0,0.1);
+    border: 1px solid rgba(170,255,0,0.3);
+    border-radius: 2px;
+    padding: 4px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* HERO */
+  .hero {
+    padding: 4rem 2.5rem 3rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: 'RAISE';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 280px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.02);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(64px, 10vw, 110px);
+    font-weight: 900;
+    line-height: 0.92;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+  }
+
+  .hero-headline .green { color: var(--green); }
+  .hero-headline .dim { color: var(--grey); }
+
+  .hero-desc {
+    font-size: 16px;
+    color: var(--grey);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .hero-desc strong { color: var(--white); font-weight: 500; }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    flex: 1;
+    padding: 1.5rem 2.5rem;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* MAIN GRID */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    min-height: calc(100vh - 320px);
+  }
+
+  .content {
+    padding: 2.5rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .sidebar {
+    padding: 2rem;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* WEEK CARDS */
+  .weeks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2.5rem; }
+
+  .week-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .week-card.active {
+    border-color: var(--green);
+    background: rgba(170,255,0,0.04);
+  }
+
+  .week-card.locked {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .week-card:hover:not(.locked) {
+    border-color: #555;
+  }
+
+  .week-card.active:hover {
+    border-color: var(--green);
+  }
+
+  .week-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .week-info { flex: 1; }
+
+  .week-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 3px;
+  }
+
+  .week-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    margin-bottom: 3px;
+  }
+
+  .week-desc {
+    font-size: 12px;
+    color: var(--grey);
+    line-height: 1.4;
+  }
+
+  .week-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    letter-spacing: 0.06em;
+  }
+
+  .week-badge.open {
+    background: rgba(170,255,0,0.15);
+    color: var(--green);
+    border: 1px solid rgba(170,255,0,0.3);
+  }
+
+  .week-badge.locked-badge {
+    background: rgba(136,136,136,0.1);
+    color: var(--grey);
+    border: 1px solid var(--border);
+  }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2.5rem; }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .check-item:hover { border-color: #555; }
+  .check-item.done { border-color: rgba(170,255,0,0.3); }
+
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .check-item.done .check-box {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .check-box svg { display: none; }
+  .check-item.done .check-box svg { display: block; }
+
+  .check-text {
+    font-size: 13px;
+    color: var(--grey);
+    line-height: 1.4;
+  }
+  .check-item.done .check-text {
+    color: var(--white);
+    text-decoration: line-through;
+    text-decoration-color: rgba(255,255,255,0.3);
+  }
+
+  /* SIDEBAR */
+  .sidebar-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-block-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-block-title span { font-size: 16px; }
+
+  .session-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .session-row:last-child { border-bottom: none; }
+
+  .session-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .session-dot.green { background: var(--green); }
+  .session-dot.grey { background: var(--border); }
+
+  .session-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--grey);
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .session-date {
+    font-size: 12px;
+    color: var(--grey);
+  }
+
+  .tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+    text-align: left;
+  }
+
+  .tool-btn:hover { border-color: var(--green); }
+
+  .tool-btn-icon {
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    background: var(--card);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tool-btn-text { flex: 1; }
+  .tool-btn-name { font-size: 13px; font-weight: 500; display: block; }
+  .tool-btn-sub { font-size: 11px; color: var(--grey); display: block; margin-top: 1px; }
+
+  .tool-btn-arrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--green);
+  }
+
+  /* QUOTE */
+  .quote-block {
+    border-left: 3px solid var(--green);
+    padding: 1rem 1.25rem;
+    background: rgba(170,255,0,0.04);
+    border-radius: 0 4px 4px 0;
+    margin-top: 2rem;
+  }
+
+  .quote-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    color: var(--white);
+  }
+
+  .quote-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--grey);
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; }
+    .content { border-right: none; border-bottom: 1px solid var(--border); }
+    .stats-bar { flex-wrap: wrap; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); min-width: 50%; }
+    .hero::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">RA<span class="ai">I</span>se</div>
+  <div class="status-pill">
+    <div class="status-dot"></div>
+    Cohort 01 · June 2026 · Live
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">// Welcome to RAIse · Cohort 01</div>
+  <h1 class="hero-headline">
+    <span class="dim">You're</span><br>
+    <span class="green">in.</span>
+  </h1>
+  <p class="hero-desc">
+    Most people talk about learning AI.<br>
+    <strong>You signed up. That already puts you ahead.</strong><br><br>
+    Three weeks from now you'll use AI every day — naturally, at work, without thinking about it.<br><br>
+    This page is your home base. Come back before every session. Come back after. Everything you need lives here.
+  </p>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Weeks</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Live sessions</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">75</div>
+    <div class="stat-label">Min per session</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">0</div>
+    <div class="stat-label">Tech skills needed</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: CONTENT -->
+  <div class="content">
+
+    <div class="section-label">Your three weeks</div>
+
+    <div class="weeks">
+      <a class="week-card active" href="#">
+        <div class="week-icon">⚡</div>
+        <div class="week-info">
+          <div class="week-num">Week 01</div>
+          <div class="week-title">Learn to learn AI</div>
+          <div class="week-desc">Set up Claude. Run your first prompts. Build the habit.</div>
+        </div>
+        <div class="week-badge open">Open →</div>
+      </a>
+
+      <div class="week-card locked">
+        <div class="week-icon">🔥</div>
+        <div class="week-info">
+          <div class="week-num">Week 02</div>
+          <div class="week-title">Apply it to your job</div>
+          <div class="week-desc">RCTC framework. Prompt library. Real work tasks.</div>
+        </div>
+        <div class="week-badge locked-badge">🔒 After Session 1</div>
+      </div>
+
+      <div class="week-card locked">
+        <div class="week-icon">🏆</div>
+        <div class="week-info">
+          <div class="week-num">Week 03</div>
+          <div class="week-title">Never fall behind again</div>
+          <div class="week-desc">Build your personal AI system. Make it permanent.</div>
+        </div>
+        <div class="week-badge locked-badge">🔒 After Session 2</div>
+      </div>
+    </div>
+
+    <div class="section-label">Before your first session</div>
+
+    <div class="checklist" id="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="check-text">Create a free Claude account at claude.ai</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="check-text">Open Week 01 and complete the 3 starter prompts</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="check-text">Write down one real work problem you want to solve with AI</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="check-text">Write down one task you do every week that feels repetitive</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="check-text">Show up to Zoom ready to share both</div>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <div class="quote-text">Close the AI gap.<br>Three weeks.</div>
+      <div class="quote-sub">RAIse · Cohort 01 · joinraice.com</div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="sidebar-block">
+      <div class="sidebar-block-title"><span>📅</span> Sessions</div>
+      <div class="session-row">
+        <div class="session-dot green"></div>
+        <div class="session-name">Session 01</div>
+        <div class="session-date">TBC</div>
+      </div>
+      <div class="session-row">
+        <div class="session-dot grey"></div>
+        <div class="session-name">Session 02</div>
+        <div class="session-date">TBC</div>
+      </div>
+      <div class="session-row">
+        <div class="session-dot grey"></div>
+        <div class="session-name">Session 03</div>
+        <div class="session-date">TBC</div>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-block-title"><span>🛠</span> Tools</div>
+
+      <button class="tool-btn">
+        <div class="tool-btn-icon">✍️</div>
+        <div class="tool-btn-text">
+          <span class="tool-btn-name">Prompt Builder</span>
+          <span class="tool-btn-sub">Build your first RCTC prompt</span>
+        </div>
+        <div class="tool-btn-arrow">→</div>
+      </button>
+
+      <button class="tool-btn">
+        <div class="tool-btn-icon">📊</div>
+        <div class="tool-btn-text">
+          <span class="tool-btn-name">Habit Tracker</span>
+          <span class="tool-btn-sub">Log your 5-day AI habit</span>
+        </div>
+        <div class="tool-btn-arrow">→</div>
+      </button>
+
+      <button class="tool-btn">
+        <div class="tool-btn-icon">🧠</div>
+        <div class="tool-btn-text">
+          <span class="tool-btn-name">Self-Assessment</span>
+          <span class="tool-btn-sub">Test yourself after each session</span>
+        </div>
+        <div class="tool-btn-arrow">→</div>
+      </button>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-block-title"><span>🎥</span> Recordings</div>
+      <div class="session-row">
+        <div class="session-dot grey"></div>
+        <div class="session-name">Session 01</div>
+        <div class="session-date" style="color: #555; font-size: 11px;">After call</div>
+      </div>
+      <div class="session-row">
+        <div class="session-dot grey"></div>
+        <div class="session-name">Session 02</div>
+        <div class="session-date" style="color: #555; font-size: 11px;">After call</div>
+      </div>
+      <div class="session-row">
+        <div class="session-dot grey"></div>
+        <div class="session-name">Session 03</div>
+        <div class="session-date" style="color: #555; font-size: 11px;">After call</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function toggleCheck(el) {
+    el.classList.toggle('done');
+  }
+</script>
+</body>
+</html>
