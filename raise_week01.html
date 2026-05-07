@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIse · Week 01 · Learn to Learn AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --black: #1A1A1A; --green: #AAFF00; --white: #FFFFFF; --card: #2A2A2A; --grey: #888888; --border: #333333; }
+  body { background: var(--black); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 2.5rem; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; color: var(--white); }
+  .logo .ai { color: var(--green); }
+  .nav { display: flex; gap: 8px; }
+  .nav-item { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 10px; border: 1px solid var(--border); border-radius: 2px; cursor: pointer; text-decoration: none; transition: all 0.15s; }
+  .nav-item:hover { color: var(--white); border-color: #555; }
+  .nav-item.active { color: var(--green); border-color: rgba(170,255,0,0.4); }
+
+  /* HERO */
+  .hero { padding: 3rem 2.5rem 2.5rem; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; }
+  .hero-left {}
+  .hero-tag { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1rem; }
+  .hero-headline { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(48px, 8vw, 80px); font-weight: 900; line-height: 0.92; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+  .hero-headline .green { color: var(--green); }
+  .hero-headline .dim { color: var(--grey); }
+  .hero-desc { font-size: 15px; color: var(--grey); line-height: 1.6; max-width: 480px; }
+  .hero-desc strong { color: var(--white); font-weight: 500; }
+
+  .phase-badge { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .phase-num { font-family: 'Barlow Condensed', sans-serif; font-size: 80px; font-weight: 900; color: rgba(170,255,0,0.12); line-height: 1; }
+  .phase-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* PHASE TABS */
+  .phase-bar { display: flex; border-bottom: 1px solid var(--border); }
+  .phase-tab { flex: 1; padding: 1rem 2.5rem; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s; }
+  .phase-tab:last-child { border-right: none; }
+  .phase-tab:hover { background: rgba(255,255,255,0.02); }
+  .phase-tab.active { background: rgba(170,255,0,0.04); border-bottom: 2px solid var(--green); margin-bottom: -1px; }
+  .phase-tab-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .phase-tab-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--white); }
+  .phase-tab.active .phase-tab-label { color: var(--green); }
+
+  /* CONTENT PANELS */
+  .panel { display: none; padding: 2.5rem; }
+  .panel.active { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
+
+  .section-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* WHAT IS CLAUDE */
+  .claude-intro { margin-bottom: 2rem; }
+  .claude-intro p { font-size: 15px; color: var(--grey); line-height: 1.7; margin-bottom: 1rem; }
+  .claude-intro strong { color: var(--white); font-weight: 500; }
+
+  .callout { background: rgba(170,255,0,0.06); border: 1px solid rgba(170,255,0,0.2); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 12px; }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-text { font-size: 14px; color: var(--white); line-height: 1.6; }
+  .callout-text strong { color: var(--green); font-weight: 500; }
+
+  .traits { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 2rem; }
+  .trait { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+  .trait-icon { font-size: 18px; margin-bottom: 6px; }
+  .trait-title { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+  .trait-desc { font-size: 12px; color: var(--grey); line-height: 1.4; }
+
+  /* PROMPTS */
+  .prompts { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2rem; }
+
+  .prompt-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .prompt-header { padding: 1rem 1.25rem; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.15s; }
+  .prompt-header:hover { background: rgba(255,255,255,0.03); }
+  .prompt-num { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; color: var(--green); line-height: 1; flex-shrink: 0; }
+  .prompt-info { flex: 1; }
+  .prompt-title { font-size: 14px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+  .prompt-sub { font-size: 12px; color: var(--grey); }
+  .prompt-toggle { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--grey); transition: transform 0.2s; }
+  .prompt-card.open .prompt-toggle { transform: rotate(45deg); color: var(--green); }
+
+  .prompt-body { display: none; padding: 0 1.25rem 1.25rem; }
+  .prompt-card.open .prompt-body { display: block; }
+
+  .prompt-instruction { font-size: 13px; color: var(--grey); line-height: 1.6; margin-bottom: 12px; }
+
+  .prompt-box { background: #1a1a1a; border: 1px solid var(--border); border-radius: 4px; padding: 12px 14px; font-family: 'DM Mono', monospace; font-size: 12px; color: #ccc; line-height: 1.6; position: relative; margin-bottom: 10px; }
+  .prompt-box em { color: var(--green); font-style: normal; }
+
+  .copy-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border); border-radius: 3px; padding: 5px 12px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); cursor: pointer; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s; }
+  .copy-btn:hover { border-color: var(--green); color: var(--green); }
+  .copy-btn.copied { color: var(--green); border-color: rgba(170,255,0,0.4); }
+
+  .prompt-note { font-size: 12px; color: #555; line-height: 1.5; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
+
+  /* THE RULE */
+  .rule-block { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; }
+  .rule-title { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; color: var(--white); margin-bottom: 0.75rem; }
+  .rule-title span { color: var(--green); }
+  .rule-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 1rem; }
+  .rule-col { padding: 10px 12px; border-radius: 4px; }
+  .rule-col.bad { background: rgba(220,80,80,0.08); border: 1px solid rgba(220,80,80,0.2); }
+  .rule-col.good { background: rgba(170,255,0,0.06); border: 1px solid rgba(170,255,0,0.2); }
+  .rule-col-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .rule-col.bad .rule-col-label { color: rgba(220,80,80,0.8); }
+  .rule-col.good .rule-col-label { color: var(--green); }
+  .rule-col-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--grey); line-height: 1.5; }
+  .rule-col.good .rule-col-text { color: var(--white); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: border-color 0.15s; }
+  .check-item:hover { border-color: #555; }
+  .check-item.done { border-color: rgba(170,255,0,0.3); }
+  .check-box { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 3px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .check-item.done .check-box { background: var(--green); border-color: var(--green); }
+  .check-box svg { display: none; }
+  .check-item.done .check-box svg { display: block; }
+  .check-text { font-size: 13px; color: var(--grey); line-height: 1.4; }
+  .check-item.done .check-text { color: var(--white); }
+
+  /* AFTER SESSION */
+  .after-section { opacity: 0.4; pointer-events: none; }
+  .after-section.unlocked { opacity: 1; pointer-events: auto; }
+  .locked-notice { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; font-size: 13px; color: var(--grey); margin-bottom: 1.5rem; display: flex; gap: 10px; align-items: center; }
+
+  /* HABIT TABLE */
+  .habit-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .habit-table th { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+  .habit-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .habit-table td:first-child { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); white-space: nowrap; }
+  .habit-table input { background: transparent; border: none; color: var(--white); font-family: 'Inter', sans-serif; font-size: 13px; width: 100%; outline: none; }
+  .habit-table input::placeholder { color: #444; }
+  .habit-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 12px; }
+  .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .sidebar-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--white); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+
+  .access-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .access-row:last-child { border-bottom: none; }
+  .access-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .access-dot.green { background: var(--green); }
+  .access-dot.grey { background: var(--border); }
+  .access-name { font-size: 13px; color: var(--grey); flex: 1; }
+  .access-name.active { color: var(--white); }
+  .access-link { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); text-decoration: none; }
+  .access-link:hover { text-decoration: underline; }
+
+  .tip-list { display: flex; flex-direction: column; gap: 8px; }
+  .tip-item { font-size: 12px; color: var(--grey); line-height: 1.5; padding: 8px 10px; background: #1a1a1a; border-radius: 4px; border-left: 2px solid var(--green); }
+
+  .btn { padding: 10px 20px; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; border: 1px solid; transition: all 0.15s; width: 100%; text-align: center; }
+  .btn-primary { background: var(--green); color: var(--black); border-color: var(--green); }
+  .btn-primary:hover { background: #99ee00; }
+  .btn-secondary { background: transparent; color: var(--white); border-color: var(--border); }
+  .btn-secondary:hover { border-color: #555; }
+
+  @media (max-width: 800px) {
+    .panel.active { grid-template-columns: 1fr; }
+    .hero { grid-template-columns: 1fr; }
+    .phase-badge { display: none; }
+    .phase-bar { flex-direction: column; }
+    .traits { grid-template-columns: 1fr; }
+    .rule-compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">RA<span class="ai">I</span>se</div>
+  <nav class="nav">
+    <a class="nav-item" href="#">← Back to home</a>
+    <span class="nav-item active">Week 01</span>
+    <span class="nav-item" style="opacity:0.4;">Week 02</span>
+    <span class="nav-item" style="opacity:0.4;">Week 03</span>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">// Week 01 · Learn to Learn AI</div>
+    <h1 class="hero-headline">
+      <span class="dim">Start</span><br>
+      <span class="green">here.</span>
+    </h1>
+    <p class="hero-desc">
+      This week you set up Claude, run your first real prompts, and begin building the habit.<br><br>
+      <strong>15 minutes before the Zoom call is all you need.</strong><br>
+      The exercises after use your actual work — so they take as long as your work takes.
+    </p>
+  </div>
+  <div class="phase-badge">
+    <div class="phase-num">01</div>
+    <div class="phase-label">Of three weeks</div>
+  </div>
+</section>
+
+<!-- PHASE TABS -->
+<div class="phase-bar">
+  <div class="phase-tab active" onclick="switchPhase('before', this)">
+    <div class="phase-tab-label">// Phase 01</div>
+    <div class="phase-tab-title">Before the call</div>
+  </div>
+  <div class="phase-tab" onclick="switchPhase('after', this)">
+    <div class="phase-tab-label">// Phase 02</div>
+    <div class="phase-tab-title">After the call</div>
+  </div>
+</div>
+
+<!-- BEFORE PANEL -->
+<div class="panel active" id="panel-before">
+  <div class="main-col">
+
+    <div class="section-label">What is Claude?</div>
+    <div class="claude-intro">
+      <p>Claude is an AI assistant made by Anthropic. Think of it as a very capable colleague who has read almost everything ever written — and never gets tired, annoyed, or distracted.</p>
+      <p>It can write, analyse, summarise, brainstorm, draft, translate, explain, and more. <strong>No technical background needed to use it.</strong></p>
+    </div>
+
+    <div class="callout">
+      <div class="callout-icon">⚡</div>
+      <div class="callout-text"><strong>The one thing to know before you start:</strong> Claude does not remember you between conversations. Every session starts fresh. Give it context every time — and it will perform every time.</div>
+    </div>
+
+    <div class="traits">
+      <div class="trait">
+        <div class="trait-icon">✍️</div>
+        <div class="trait-title">Writes and edits</div>
+        <div class="trait-desc">Emails, reports, presentations, summaries, proposals</div>
+      </div>
+      <div class="trait">
+        <div class="trait-icon">🧠</div>
+        <div class="trait-title">Thinks through problems</div>
+        <div class="trait-desc">Pros/cons, scenarios, decisions, strategies</div>
+      </div>
+      <div class="trait">
+        <div class="trait-icon">📄</div>
+        <div class="trait-title">Reads documents</div>
+        <div class="trait-desc">Paste any text and ask Claude to summarise or analyse it</div>
+      </div>
+      <div class="trait">
+        <div class="trait-icon">💬</div>
+        <div class="trait-title">Coaches and prepares</div>
+        <div class="trait-desc">Meeting prep, difficult conversations, stakeholder briefs</div>
+      </div>
+    </div>
+
+    <div class="section-label">Get access</div>
+    <div class="callout" style="margin-bottom: 2rem;">
+      <div class="callout-icon">🔗</div>
+      <div class="callout-text">Go to <strong>claude.ai</strong> and create a free account. Do this before the session. The free tier is enough to complete this programme.</div>
+    </div>
+
+    <div class="section-label">Your first 3 prompts</div>
+    <p style="font-size: 14px; color: var(--grey); margin-bottom: 1.25rem; line-height: 1.6;">Do these before the Zoom call. They take 10 minutes. They will make the session 10x more useful.</p>
+
+    <div class="prompts">
+
+      <div class="prompt-card" id="pc-1">
+        <div class="prompt-header" onclick="togglePrompt('pc-1')">
+          <div class="prompt-num">01</div>
+          <div class="prompt-info">
+            <div class="prompt-title">Introduce yourself to Claude</div>
+            <div class="prompt-sub">Find out what Claude can do for your specific job</div>
+          </div>
+          <div class="prompt-toggle">+</div>
+        </div>
+        <div class="prompt-body">
+          <p class="prompt-instruction">Copy this into Claude. Replace the bracketed parts with your real information.</p>
+          <div class="prompt-box" id="pb-1">I work in <em>[your industry]</em> as a <em>[your job title]</em>. My main responsibilities are <em>[describe in 2–3 sentences]</em>. I want to start using AI to help me at work. What are the 5 most useful things you could help me with right now?</div>
+          <button class="copy-btn" onclick="copyPrompt('pb-1', this)">Copy prompt</button>
+          <p class="prompt-note">Read the answer carefully. Does anything surprise you? Save it — we'll use it in the session.</p>
+        </div>
+      </div>
+
+      <div class="prompt-card" id="pc-2">
+        <div class="prompt-header" onclick="togglePrompt('pc-2')">
+          <div class="prompt-num">02</div>
+          <div class="prompt-info">
+            <div class="prompt-title">Summarise something real</div>
+            <div class="prompt-sub">Use an actual document from your work this week</div>
+          </div>
+          <div class="prompt-toggle">+</div>
+        </div>
+        <div class="prompt-body">
+          <p class="prompt-instruction">Find a long email, report, or article you need to read this week. Paste it into Claude, then write:</p>
+          <div class="prompt-box" id="pb-2">Summarise this in 5 bullet points. Focus on what I need to act on, not what I already know.</div>
+          <button class="copy-btn" onclick="copyPrompt('pb-2', this)">Copy prompt</button>
+          <p class="prompt-note">Notice how long that would have taken you to read. That time is yours now.</p>
+        </div>
+      </div>
+
+      <div class="prompt-card" id="pc-3">
+        <div class="prompt-header" onclick="togglePrompt('pc-3')">
+          <div class="prompt-num">03</div>
+          <div class="prompt-info">
+            <div class="prompt-title">Ask a hard question</div>
+            <div class="prompt-sub">Bring a real problem from your work right now</div>
+          </div>
+          <div class="prompt-toggle">+</div>
+        </div>
+        <div class="prompt-body">
+          <p class="prompt-instruction">Think of one real problem you're dealing with at work. Describe it to Claude in 2–3 sentences, then ask:</p>
+          <div class="prompt-box" id="pb-3">What are 3 different ways I could approach this problem? For each one, give me the main pro and the main risk.</div>
+          <button class="copy-btn" onclick="copyPrompt('pb-3', this)">Copy prompt</button>
+          <p class="prompt-note">Bring the answer to the Zoom call. We'll discuss it together.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-label">The one rule</div>
+    <div class="rule-block">
+      <div class="rule-title">Garbage in.<br><span>Garbage out.</span></div>
+      <p style="font-size: 14px; color: var(--grey); line-height: 1.6;">Claude is only as good as the context you give it. Vague prompt → vague answer. Specific prompt → specific, useful answer.</p>
+      <div class="rule-compare">
+        <div class="rule-col bad">
+          <div class="rule-col-label">❌ Vague</div>
+          <div class="rule-col-text">"Write me an email about the project."</div>
+        </div>
+        <div class="rule-col good">
+          <div class="rule-col-label">✓ Specific</div>
+          <div class="rule-col-text">"Write a follow-up email to a client who went quiet after our proposal. Warm but direct. Max 80 words."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Bring to the session</div>
+    <div class="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">Claude account created at claude.ai</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">All 3 prompts completed</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">One real work problem you want to solve with AI</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">One weekly task that feels repetitive and boring</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR BEFORE -->
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">📅 Session 01</div>
+      <div class="access-row">
+        <div class="access-dot green"></div>
+        <div class="access-name active">Date</div>
+        <span style="font-size:12px; color: var(--grey);">TBC</span>
+      </div>
+      <div class="access-row">
+        <div class="access-dot green"></div>
+        <div class="access-name active">Zoom link</div>
+        <span style="font-size:12px; color: #555;">Coming soon</span>
+      </div>
+      <div class="access-row">
+        <div class="access-dot grey"></div>
+        <div class="access-name">Recording</div>
+        <span style="font-size:12px; color: #555;">After call</span>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">💡 Quick tips</div>
+      <div class="tip-list">
+        <div class="tip-item">Start every Claude conversation by saying who you are and what you're working on.</div>
+        <div class="tip-item">If the answer is wrong or off — just say "that's not quite right, try again with..." Claude responds to feedback.</div>
+        <div class="tip-item">Paste real documents. The more context Claude has, the better it performs.</div>
+        <div class="tip-item">There's no wrong prompt. The only bad prompt is the one you don't send.</div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">🛠 Tools</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-primary" onclick="switchPhase('after', document.querySelectorAll('.phase-tab')[1])">Go to after-session →</button>
+        <button class="btn btn-secondary">Open Prompt Builder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AFTER PANEL -->
+<div class="panel" id="panel-after">
+  <div class="main-col">
+
+    <div class="callout">
+      <div class="callout-icon">🎉</div>
+      <div class="callout-text"><strong>Session 01 is done.</strong> Good work. Now the real learning starts — using AI every day this week.</div>
+    </div>
+
+    <div class="section-label">Your Week 01 exercise</div>
+    <p style="font-size: 15px; font-weight: 500; color: var(--white); margin-bottom: 8px;">The 5-day AI habit.</p>
+    <p style="font-size: 14px; color: var(--grey); line-height: 1.6; margin-bottom: 1.5rem;">Use Claude for at least one real work task per day. Log what you did. Bring this to Week 02 — we'll use it to build your prompt library.</p>
+
+    <table class="habit-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>What did you use Claude for?</th>
+          <th>Did it help?</th>
+          <th>What you learned</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mon</td>
+          <td><input type="text" placeholder="e.g. Summarised a report..."></td>
+          <td><input type="text" placeholder="Yes / No / Partially"></td>
+          <td><input type="text" placeholder="e.g. Be more specific..."></td>
+        </tr>
+        <tr>
+          <td>Tue</td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+        </tr>
+        <tr>
+          <td>Wed</td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+        </tr>
+        <tr>
+          <td>Thu</td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+        </tr>
+        <tr>
+          <td>Fri</td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label">Session recording</div>
+    <div class="callout" style="opacity: 0.5;">
+      <div class="callout-icon">🎥</div>
+      <div class="callout-text">Session 01 recording will appear here within 24 hours of the call.</div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR AFTER -->
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">✅ Week 01 checklist</div>
+      <div class="checklist" style="gap:6px;">
+        <div class="check-item" onclick="toggleCheck(this)" style="padding: 8px 10px;">
+          <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="check-text" style="font-size:12px;">Session 01 attended</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)" style="padding: 8px 10px;">
+          <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="check-text" style="font-size:12px;">5-day habit log filled in</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)" style="padding: 8px 10px;">
+          <div class="check-box"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="check-text" style="font-size:12px;">Ready for Week 02</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-title">→ Next up</div>
+      <p style="font-size:13px; color: var(--grey); line-height:1.5; margin-bottom:12px;">Week 02 opens after Session 01. You'll learn the RCTC framework and build your personal prompt library.</p>
+      <button class="btn btn-secondary" style="opacity:0.5; cursor:default;">Week 02 — locked 🔒</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchPhase(phase, tabEl) {
+    document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tabEl.classList.add('active');
+    document.getElementById('panel-' + phase).classList.add('active');
+  }
+
+  function togglePrompt(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  function toggleCheck(el) {
+    el.classList.toggle('done');
+  }
+
+  function copyPrompt(id, btn) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy prompt';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>

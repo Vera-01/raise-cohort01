@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIse · Self-Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --black: #1A1A1A; --green: #AAFF00; --white: #FFFFFF; --card: #2A2A2A; --grey: #888888; --border: #333333; }
+  body { background: var(--black); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--border); }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; color: var(--white); }
+  .logo .ai { color: var(--green); }
+  .tool-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--green); letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(170,255,0,0.4); padding: 3px 10px; border-radius: 2px; }
+
+  main { padding: 2.5rem; max-width: 720px; }
+
+  .headline { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(40px, 7vw, 64px); font-weight: 900; line-height: 0.95; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  .headline span { color: var(--green); }
+  .sub { font-size: 15px; color: var(--grey); margin-bottom: 2rem; line-height: 1.6; }
+
+  /* WEEK SELECTOR */
+  .week-tabs { display: flex; gap: 8px; margin-bottom: 2.5rem; }
+  .week-tab { padding: 8px 18px; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--grey); transition: all 0.15s; }
+  .week-tab.active { background: var(--green); color: var(--black); border-color: var(--green); }
+  .week-tab:hover:not(.active) { border-color: #555; color: var(--white); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 2rem; }
+  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; }
+  .progress-count { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); }
+  .progress-track { height: 4px; background: var(--border); border-radius: 2px; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; }
+
+  /* QUIZ */
+  .quiz { display: flex; flex-direction: column; gap: 0; }
+
+  .question-block { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 12px; transition: border-color 0.2s; }
+  .question-block.answered { border-color: #3a3a3a; }
+  .question-block.correct { border-color: rgba(170,255,0,0.4); }
+  .question-block.wrong { border-color: rgba(220,80,80,0.4); }
+
+  .question-header { padding: 1.25rem 1.5rem; background: var(--card); display: flex; gap: 12px; align-items: flex-start; }
+  .q-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; padding-top: 2px; }
+  .q-text { font-size: 15px; color: var(--white); line-height: 1.5; font-weight: 500; }
+
+  .options { padding: 0.75rem 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+
+  .option {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; border-radius: 4px;
+    border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s;
+    background: #1a1a1a;
+  }
+  .option:hover:not(.disabled) { border-color: #555; background: #222; }
+  .option.selected-correct { border-color: var(--green); background: rgba(170,255,0,0.08); }
+  .option.selected-wrong { border-color: rgba(220,80,80,0.6); background: rgba(220,80,80,0.08); }
+  .option.show-correct { border-color: rgba(170,255,0,0.3); background: rgba(170,255,0,0.04); }
+  .option.disabled { cursor: default; }
+
+  .option-letter {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--grey); flex-shrink: 0; padding-top: 1px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    width: 16px;
+  }
+  .option.selected-correct .option-letter { color: var(--green); }
+  .option.selected-wrong .option-letter { color: rgba(220,80,80,0.9); }
+
+  .option-text { font-size: 13px; color: var(--grey); line-height: 1.4; }
+  .option.selected-correct .option-text { color: var(--white); }
+  .option.selected-wrong .option-text { color: var(--white); }
+  .option.show-correct .option-text { color: #aaa; }
+
+  .explanation {
+    padding: 0 1.5rem 1.25rem;
+    font-size: 13px; color: var(--grey); line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--green); font-weight: 500; }
+
+  /* RESULT */
+  .result-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 2rem; text-align: center; display: none; margin-top: 1.5rem;
+  }
+  .result-block.show { display: block; }
+  .result-score { font-family: 'Barlow Condensed', sans-serif; font-size: 72px; font-weight: 900; color: var(--green); line-height: 1; margin-bottom: 8px; }
+  .result-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--grey); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+  .result-message { font-size: 16px; color: var(--white); line-height: 1.6; margin-bottom: 1.5rem; }
+  .result-message span { color: var(--green); }
+
+  .btn { padding: 11px 28px; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; border: 1px solid; transition: all 0.15s; }
+  .btn-primary { background: var(--green); color: var(--black); border-color: var(--green); }
+  .btn-primary:hover { background: #99ee00; }
+  .btn-secondary { background: transparent; color: var(--white); border-color: var(--border); margin-left: 10px; }
+  .btn-secondary:hover { border-color: #555; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RA<span class="ai">I</span>se</div>
+  <div class="tool-tag">Self-Assessment</div>
+</header>
+
+<main>
+  <h1 class="headline">Test<br><span>yourself.</span></h1>
+  <p class="sub">Quick check after each session. No grades. Just honest feedback on what landed and what didn't.</p>
+
+  <div class="week-tabs">
+    <button class="week-tab active" onclick="loadWeek(1, this)">Week 01</button>
+    <button class="week-tab" onclick="loadWeek(2, this)">Week 02</button>
+    <button class="week-tab" onclick="loadWeek(3, this)">Week 03</button>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <div class="progress-label">Progress</div>
+      <div class="progress-count" id="progress-count">0 / 5</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <div class="quiz" id="quiz"></div>
+  <div class="result-block" id="result-block">
+    <div class="result-score" id="result-score">0/5</div>
+    <div class="result-label">Your score · Week <span id="result-week">01</span></div>
+    <div class="result-message" id="result-message"></div>
+    <button class="btn btn-primary" onclick="retryQuiz()">Try again</button>
+    <button class="btn btn-secondary" onclick="loadWeek(currentWeek + 1)">Next week →</button>
+  </div>
+</main>
+
+<script>
+const quizData = {
+  1: [
+    {
+      q: "Claude does not remember previous conversations. What does this mean for how you use it?",
+      options: ["Nothing — it figures out context automatically", "You need to give Claude relevant context at the start of every new conversation", "You need to repeat everything twice", "You should only use Claude for one task per day"],
+      correct: 1,
+      explanation: "Every conversation starts fresh. Claude has no memory between sessions, so giving context upfront — who you are, what you're working on — makes a huge difference in output quality."
+    },
+    {
+      q: "Which of these is the most useful first prompt when starting a new Claude conversation?",
+      options: [
+        "\"Write me an email.\"",
+        "\"I am a marketing manager at a retail company. I need to write a follow-up email to a client who went quiet after our proposal. Tone: warm but direct. Max 100 words.\"",
+        "\"Email. Client. Follow up.\"",
+        "\"Can you help me?\""
+      ],
+      correct: 1,
+      explanation: "The more context and constraints you give, the better. Role + situation + task + limits = great output. Vague prompt → vague answer."
+    },
+    {
+      q: "What does RCTC stand for?",
+      options: ["Read, Create, Test, Copy", "Role, Context, Task, Constraints", "Result, Check, Try, Confirm", "Rapid Claude Training Concept"],
+      correct: 1,
+      explanation: "Role → Context → Task → Constraints. This framework is the foundation of every strong Claude prompt."
+    },
+    {
+      q: "You ask Claude to summarise a long report. The output is too generic. What's the most likely fix?",
+      options: [
+        "Ask Claude to try again with no changes",
+        "Switch to a different AI tool",
+        "Add more context: who will read it, what they care about, and how long it should be",
+        "Make the report shorter first"
+      ],
+      correct: 2,
+      explanation: "Generic output almost always means a generic prompt. Add the audience, the purpose, and the constraints — and the output gets specific."
+    },
+    {
+      q: "Which statement about Claude is true?",
+      options: [
+        "Claude works best for technical tasks only",
+        "You need a paid subscription to get useful results",
+        "Claude can help with writing, analysis, brainstorming, summarising, and more — with no technical background needed",
+        "Claude replaces the need to think critically"
+      ],
+      correct: 2,
+      explanation: "Claude is a thinking partner, not a replacement for thinking. It works across almost any knowledge work task — and the free tier is enough to get started."
+    }
+  ],
+  2: [
+    {
+      q: "You've been using the same prompt for a week and the results are mediocre. What should you do?",
+      options: ["Accept that Claude isn't good for this task", "Rewrite the prompt using RCTC and compare outputs", "Use a shorter prompt — less is more", "Ask the same prompt in a different tab"],
+      correct: 1,
+      explanation: "Prompts are drafts, not final documents. Rewrite, test, compare. The RCTC framework gives you a structure to improve systematically."
+    },
+    {
+      q: "What is a prompt library?",
+      options: [
+        "A list of books about AI prompting",
+        "A collection of your best tested prompts, organised by task",
+        "Prompts that Claude saves automatically",
+        "A paid feature in Claude Pro"
+      ],
+      correct: 1,
+      explanation: "Your prompt library is personal and built over time. It's one of the most valuable things you'll take out of RAIse — a toolkit of prompts that actually work for your job."
+    },
+    {
+      q: "Which constraint makes a prompt significantly better?",
+      options: ["Adding more exclamation marks", "Specifying format, length, and audience", "Asking Claude to be creative", "Using formal language"],
+      correct: 1,
+      explanation: "Constraints aren't limiting — they're directing. 'Max 5 bullet points, no jargon, written for a non-technical CEO' transforms a generic output into something immediately useful."
+    },
+    {
+      q: "You need Claude to write in the voice of your company. What's the best approach?",
+      options: [
+        "Ask Claude to 'sound professional'",
+        "Paste an example of existing company copy and ask Claude to match the tone",
+        "Use all caps",
+        "Claude cannot replicate specific voices"
+      ],
+      correct: 1,
+      explanation: "Show, don't tell. Paste 2-3 examples of your company's writing and Claude will calibrate to that style far better than any adjective you could use."
+    },
+    {
+      q: "By Week 02, what should you have built?",
+      options: [
+        "A full AI strategy for your company",
+        "A personal prompt library with 5 tested, named prompts for your actual job",
+        "A certification in AI",
+        "An automated workflow that replaces your assistant"
+      ],
+      correct: 1,
+      explanation: "5 prompts. Tested. Named. Specific to your work. That's the Week 02 deliverable — and it's more valuable than any certificate."
+    }
+  ],
+  3: [
+    {
+      q: "What's the biggest reason people fall behind after completing an AI course?",
+      options: [
+        "The course content was wrong",
+        "They didn't have a system — no ritual, no library, no way to stay current",
+        "AI changes too fast to keep up",
+        "They didn't spend enough money"
+      ],
+      correct: 1,
+      explanation: "Knowledge without a system fades. The people who stay ahead have a weekly ritual, a living prompt library, and one trusted source for staying current. That's all it takes."
+    },
+    {
+      q: "What makes a good weekly AI ritual?",
+      options: [
+        "Spending 2 hours every day reading about AI",
+        "One specific, recurring moment where you use Claude before anything else",
+        "Trying a new AI tool every week",
+        "Posting about AI on LinkedIn"
+      ],
+      correct: 1,
+      explanation: "One moment. Specific. Recurring. 'Every Monday morning I paste my inbox into Claude and ask for priorities.' Simple habits compound over time."
+    },
+    {
+      q: "How many sources should you follow to stay current on AI?",
+      options: ["As many as possible — more input is better", "One. Pick the best one for your needs and go deep", "At least five newsletters", "None — Claude will tell you everything"],
+      correct: 1,
+      explanation: "More sources = more noise = paralysis. One great source, read consistently, beats ten sources skimmed occasionally. Pick one and commit."
+    },
+    {
+      q: "What should your prompt library look like after Week 03?",
+      options: [
+        "100+ prompts covering every possible scenario",
+        "A living document — 5-10 tested prompts for your specific job, reviewed monthly",
+        "A static document you never need to update",
+        "Shared with your whole company"
+      ],
+      correct: 1,
+      explanation: "Living document. Yours. Specific to your job. Add what works, remove what doesn't. Review it monthly. It should grow with you."
+    },
+    {
+      q: "What's the real measure of success after three weeks of RAIse?",
+      options: [
+        "Passing a certification exam",
+        "Knowing the names of 50 AI tools",
+        "Using AI as a natural part of your work every week — without thinking about it",
+        "Building an AI product"
+      ],
+      correct: 2,
+      explanation: "The goal was never knowledge. It was habit. If AI is now part of how you work — naturally, regularly, usefully — that's the win."
+    }
+  ]
+};
+
+let currentWeek = 1;
+let answered = {};
+let score = 0;
+
+function loadWeek(week, tabEl) {
+  if (week > 3) return;
+  currentWeek = week;
+  answered = {};
+  score = 0;
+
+  document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+  else document.querySelectorAll('.week-tab')[week - 1].classList.add('active');
+
+  document.getElementById('result-block').classList.remove('show');
+  updateProgress();
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const questions = quizData[currentWeek];
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+
+  questions.forEach((q, qi) => {
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.id = `q-${qi}`;
+
+    const letters = ['A', 'B', 'C', 'D'];
+    const optionsHTML = q.options.map((opt, oi) => `
+      <div class="option" onclick="selectOption(${qi}, ${oi})" id="opt-${qi}-${oi}">
+        <div class="option-letter">${letters[oi]}</div>
+        <div class="option-text">${opt}</div>
+      </div>
+    `).join('');
+
+    block.innerHTML = `
+      <div class="question-header">
+        <div class="q-num">Q${String(qi + 1).padStart(2, '0')}</div>
+        <div class="q-text">${q.q}</div>
+      </div>
+      <div class="options">${optionsHTML}</div>
+      <div class="explanation" id="exp-${qi}"><strong>Why:</strong> ${q.explanation}</div>
+    `;
+    quiz.appendChild(block);
+  });
+}
+
+function selectOption(qi, oi) {
+  if (answered[qi] !== undefined) return;
+  answered[qi] = oi;
+
+  const questions = quizData[currentWeek];
+  const q = questions[qi];
+  const isCorrect = oi === q.correct;
+
+  if (isCorrect) score++;
+
+  const block = document.getElementById(`q-${qi}`);
+  block.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  q.options.forEach((_, optIdx) => {
+    const optEl = document.getElementById(`opt-${qi}-${optIdx}`);
+    optEl.classList.add('disabled');
+    if (optIdx === oi) {
+      optEl.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+    } else if (optIdx === q.correct && !isCorrect) {
+      optEl.classList.add('show-correct');
+    }
+  });
+
+  document.getElementById(`exp-${qi}`).classList.add('show');
+  updateProgress();
+
+  if (Object.keys(answered).length === questions.length) {
+    setTimeout(showResult, 600);
+  }
+}
+
+function updateProgress() {
+  const total = quizData[currentWeek].length;
+  const done = Object.keys(answered).length;
+  document.getElementById('progress-count').textContent = `${done} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${(done / total) * 100}%`;
+}
+
+function showResult() {
+  const total = quizData[currentWeek].length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('result-score').textContent = `${score}/${total}`;
+  document.getElementById('result-week').textContent = String(currentWeek).padStart(2, '0');
+
+  let msg = '';
+  if (pct === 100) msg = '<span>Perfect.</span> Everything landed. You\'re ready for Week ' + (currentWeek < 3 ? currentWeek + 1 : '03 complete') + '.';
+  else if (pct >= 60) msg = 'Solid. A few things to revisit — that\'s exactly what this is for. <span>Go back to the ones you missed.</span>';
+  else msg = 'That\'s okay. This is where the learning happens. <span>Read the explanations, then try again.</span>';
+
+  document.getElementById('result-message').innerHTML = msg;
+  document.getElementById('result-block').classList.add('show');
+
+  const nextBtn = document.querySelector('.btn-secondary');
+  if (currentWeek >= 3) nextBtn.style.display = 'none';
+  else nextBtn.style.display = 'inline-block';
+}
+
+function retryQuiz() {
+  loadWeek(currentWeek, null);
+}
+
+loadWeek(1, null);
+</script>
+</body>
+</html>
